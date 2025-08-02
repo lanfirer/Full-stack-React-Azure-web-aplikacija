@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
 
   type Todo = {
+    id: number
     text: string
     completed: boolean
   }
@@ -16,7 +15,7 @@ function App() {
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputText.trim() !== '') {
-      setItems([...items, {text: inputText.trim(), completed: false}])
+      setItems([...items, {id: Date.now(), text: inputText.trim(), completed: false}])
       setInputText('')
     }
   }
@@ -41,17 +40,19 @@ function App() {
       </div>
      
      <ul>
-      {items.map((item, index) => (
-        <li key={index}>
+      {[...items]
+      .sort((a,b) => Number(a.completed) - Number(b.completed))
+      .map((item) => (
+        <li key={item.id}>
           <label className={ item.completed ? 'done' : ''}>
             <input type="checkbox" 
             checked={item.completed} 
             onChange={() => {
-              const newItems = items.map((item, i) => {
-                if (i === index) {
+              const newItems = items.map((x) => {
+                if (x.id === item.id) {
                   return {...item, completed: !item.completed}
                 }
-                return item
+                return x
               })
               setItems(newItems)
             }}/>
