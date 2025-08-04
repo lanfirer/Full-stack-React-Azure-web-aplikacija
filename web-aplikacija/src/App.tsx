@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
@@ -9,13 +9,29 @@ function App() {
     completed: boolean
   }
 
-  const [inputText, setInputText] = useState('')
-  const [items, setItems] = useState<Todo[]>([])
+  
 
+
+  const [inputText, setInputText] = useState('')
+  const [items, setItems] = useState<Todo[]>(() => {
+    const saved = localStorage.getItem("todos");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(items));
+  }, [items]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputText.trim() !== '') {
-      setItems([...items, {id: Date.now(), text: inputText.trim(), completed: false}])
+      setItems([...items, {id: Date.now(), text: " " + inputText.trim(), completed: false}])
       setInputText('')
     }
   }
@@ -39,7 +55,7 @@ function App() {
         
       </div>
      
-     <ul>
+     <ol>
       {[...items]
       .sort((a,b) => Number(a.completed) - Number(b.completed))
       .map((item) => (
@@ -60,8 +76,21 @@ function App() {
           </label>
         </li>
       ))}
-     </ul>
+     </ol>
       
+      <button className='button'
+      onClick={() => setItems([])} >
+        Clear
+      </button>
+
+      <button className='button'
+      onClick={() => {
+        const newItems = items.filter((item) => !item.completed);
+        setItems(newItems);
+      }} >
+        Clear completed
+      </button>
+
     </>
   )
 }

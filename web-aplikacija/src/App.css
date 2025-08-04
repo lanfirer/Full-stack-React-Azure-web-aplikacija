@@ -12,6 +12,8 @@
 
 .todo {
   color: white;
+  margin-top: 150px;
+  
 }
 
 .list {
@@ -24,4 +26,14 @@
 .done {
   text-decoration: line-through;
   color: gray;
+}
+
+
+ol {
+  list-style-type: decimal;
+  text-align: left;
+}
+
+li:hover {
+  background-color: #253031;
 }
