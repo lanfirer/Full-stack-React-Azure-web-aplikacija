@@ -9,8 +9,6 @@ function App() {
     completed: boolean
   }
 
-  
-
 
   const [inputText, setInputText] = useState('')
   const [items, setItems] = useState<Todo[]>(() => {
@@ -28,6 +26,15 @@ function App() {
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(items));
   }, [items]);
+
+
+  useEffect(() => {
+    fetch('http://localhost:8080/todo')
+      .then((res) => res.json())
+      .then((json) => {
+        setItems(json);
+      });
+  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputText.trim() !== '') {
