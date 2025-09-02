@@ -38,10 +38,44 @@ function App() {
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && inputText.trim() !== '') {
-      setItems([...items, {id: Date.now(), text: " " + inputText.trim(), completed: false}])
+      addTodo(inputText.trim())
       setInputText('')
     }
   }
+
+  const addTodo = async (text: string) => {
+    const res = await fetch('http://localhost:8080/todo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({text})
+    });
+
+    const NewTodo = await res.json();
+    setItems([...items, NewTodo]);
+  };
+
+  const toggleTodo = async (id: number, completed: boolean) => {
+    const res = await fetch(`http://localhost:8080/todo/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({completed:!completed})
+    });
+
+    const updated = await res.json();
+    setItems(items.map((item) => item.id === id ? updated : item));
+  };
+
+  const clearAll = async () => {
+    await fetch('http://localhost:8080/todo', {method: "DELETE"});
+    setItems([]);
+  };
+
+  const clearCompleted = async () => {
+    await fetch('http://localhost:8080/todo/completed', {method: "DELETE"});
+    setItems(items.filter(item => !item.completed));
+  };
 
   return (
     <>
@@ -70,15 +104,7 @@ function App() {
           <label className={ item.completed ? 'done' : ''}>
             <input type="checkbox" 
             checked={item.completed} 
-            onChange={() => {
-              const newItems = items.map((x) => {
-                if (x.id === item.id) {
-                  return {...item, completed: !item.completed}
-                }
-                return x
-              })
-              setItems(newItems)
-            }}/>
+            onChange={() => toggleTodo(item.id, item.completed) }/>
             {item.text}
           </label>
         </li>
@@ -86,15 +112,12 @@ function App() {
      </ol>
       
       <button className='button'
-      onClick={() => setItems([])} >
+      onClick={clearAll} >
         Clear
       </button>
 
       <button className='button'
-      onClick={() => {
-        const newItems = items.filter((item) => !item.completed);
-        setItems(newItems);
-      }} >
+      onClick={clearCompleted} >
         Clear completed
       </button>
 
